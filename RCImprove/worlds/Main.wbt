@@ -1,0 +1,197 @@
+#VRML_SIM R2023b utf8
+
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/backgrounds/protos/TexturedBackground.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/backgrounds/protos/TexturedBackgroundLight.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/vehicles/protos/bmw/BmwX5.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/road/protos/StraightRoadSegment.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/road/protos/CurvedRoadSegment.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/floors/protos/Floor.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/appearances/protos/Parquetry.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/devices/sick/protos/SickLms291.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/road/protos/RoadLine.proto"
+
+WorldInfo {
+  contactProperties [
+    ContactProperties {
+      softCFM 1e-05
+    }
+  ]
+}
+Viewpoint {
+  orientation 0.00017360103887425972 -0.9999998620294548 -0.0004957859928715814 5.593636064476443
+  position -112.42011940950195 -40.87744514303531 122.50768391946094
+}
+TexturedBackground {
+}
+TexturedBackgroundLight {
+}
+StraightRoadSegment {
+  width 18
+  lines [
+    RoadLine {
+      color 1 1 0
+      type "continuous"
+    }
+  ]
+  rightBarrier TRUE
+  leftBarrier TRUE
+  bottom TRUE
+  length 100
+}
+CurvedRoadSegment {
+  translation 100 -17 0
+  name "road(1)"
+  width 18
+  lines [
+    RoadLine {
+      color 1 1 0
+      type "continuous"
+    }
+  ]
+  rightBarrier TRUE
+  leftBarrier TRUE
+  curvatureRadius 17
+}
+Floor {
+  size 1000 1000
+  appearance Parquetry {
+    type "dark strip"
+  }
+}
+BmwX5 {
+  translation 2.31413 0.259432 0.39
+  rotation 0 0 1 -5.307179586466759e-06
+  name "vehicle(1)"
+  controller "autonomous_vehicle"
+  sensorsSlotFront [
+    SickLms291 {
+      translation 0.06 0 0
+    }
+  ]
+  sensorsSlotTop [
+    Camera {
+      translation 0.72 0 -0.05
+      children [
+        Pose {
+          translation -0.05 0 0
+          rotation 0 -1 0 1.5708
+          children [
+            Shape {
+              appearance PBRAppearance {
+                baseColor 0.8 0.8 0.8
+                roughness 1
+                metalness 0
+              }
+              geometry Cylinder {
+                height 0.1
+                radius 0.04
+              }
+            }
+          ]
+        }
+      ]
+      fieldOfView 1
+      width 128
+    }
+  ]
+  sensorsSlotCenter [
+    GPS {
+    }
+    Gyro {
+    }
+    Display {
+      width 200
+      height 150
+    }
+  ]
+}
+CurvedRoadSegment {
+  translation 0 -17 0
+  rotation 0 0 1 1.57
+  name "road(7)"
+  width 18
+  lines [
+    RoadLine {
+      color 1 1 0
+      type "continuous"
+    }
+  ]
+  rightBarrier TRUE
+  leftBarrier TRUE
+  curvatureRadius 17
+}
+StraightRoadSegment {
+  translation -17 -67 0
+  rotation 0 0 1 1.57
+  name "road(6)"
+  width 18
+  lines [
+    RoadLine {
+      color 1 1 0
+      type "continuous"
+    }
+  ]
+  rightBarrier TRUE
+  leftBarrier TRUE
+  length 50
+}
+CurvedRoadSegment {
+  translation 0 -66.85 0
+  rotation 0 0 -1 3.141
+  name "road(5)"
+  width 18
+  lines [
+    RoadLine {
+      color 1 1 0
+      type "continuous"
+    }
+  ]
+  rightBarrier TRUE
+  leftBarrier TRUE
+  curvatureRadius 17
+}
+StraightRoadSegment {
+  translation 100 -84 0
+  rotation 0 0 1 3.14
+  name "road(4)"
+  width 18
+  lines [
+    RoadLine {
+      color 1 1 0
+      type "continuous"
+    }
+  ]
+  rightBarrier TRUE
+  leftBarrier TRUE
+  length 100
+}
+CurvedRoadSegment {
+  translation 100 -67 0
+  rotation 0 0 1 -1.57
+  name "road(3)"
+  width 18
+  lines [
+    RoadLine {
+      color 1 1 0
+      type "continuous"
+    }
+  ]
+  rightBarrier TRUE
+  leftBarrier TRUE
+  curvatureRadius 17
+}
+StraightRoadSegment {
+  translation 117 -17 0
+  rotation 0 0 1 -1.57
+  name "road(2)"
+  width 18
+  lines [
+    RoadLine {
+      color 1 1 0
+      type "continuous"
+    }
+  ]
+  rightBarrier TRUE
+  leftBarrier TRUE
+  length 50
+}
