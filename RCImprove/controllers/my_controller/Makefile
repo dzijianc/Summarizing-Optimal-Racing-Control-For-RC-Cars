@@ -21,7 +21,27 @@ null :=
 space := $(null) $(null)
 WEBOTS_HOME_PATH?=$(subst $(space),\ ,$(strip $(subst \,/,$(WEBOTS_HOME))))
 
-LIBRARIES = -ldriver -lcar
+include $(WEBOTS_HOME_PATH)/resources/Makefile.os.include
+
+LIBRARIES = -ldriver -lcar -lCppDriver
+
+ifeq ($(OSTYPE),linux)
+CFLAGS = -fPIC
+LIBRARIES += -Wl,-rpath,$(WEBOTS_LIB_PATH)
+endif
+
+CXX_SOURCES = $(wildcard *.cpp)
 
 # Do not modify the following: this includes Webots global Makefile.include
 include $(WEBOTS_HOME_PATH)/resources/Makefile.include
+
+# Qt linking
+
+CFLAGS += -std=c++17
+
+ifeq ($(OSTYPE),windows)
+ CFLAGS += -D_USE_MATH_DEFINES
+ QT_INCLUDE_DIR = $(WEBOTS_HOME)/include/qt
+ DYNAMIC_LIBRARIES += -L"$(WEBOTS_HOME)/msys64/mingw64/bin" -lQt6Core
+ INCLUDE += -isystem "$(QT_INCLUDE_DIR)/QtCore"
+endif

@@ -13,15 +13,20 @@ EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/project
 WorldInfo {
   contactProperties [
     ContactProperties {
+      coulombFriction [
+        1.2
+      ]
+      rollingFriction 0.02 0 0
       softCFM 1e-05
     }
   ]
 }
 Viewpoint {
-  orientation 0.00017360103887425972 -0.9999998620294548 -0.0004957859928715814 5.593636064476443
-  position -112.42011940950195 -40.87744514303531 122.50768391946094
+  orientation 0.014968654097973575 0.9942192205366667 -0.10632065138042664 0.28115325063908114
+  position -159.10283229090837 -25.761889268302852 49.837182485082714
 }
 TexturedBackground {
+  texture "dawn_cloudy_empty"
 }
 TexturedBackgroundLight {
 }
@@ -29,8 +34,9 @@ StraightRoadSegment {
   width 18
   lines [
     RoadLine {
-      color 1 1 0
+      color 0.796078 0.733333 0.372549
       type "continuous"
+      width 0.8
     }
   ]
   rightBarrier TRUE
@@ -44,8 +50,9 @@ CurvedRoadSegment {
   width 18
   lines [
     RoadLine {
-      color 1 1 0
+      color 0.796078 0.733333 0.372549
       type "continuous"
+      width 0.8
     }
   ]
   rightBarrier TRUE
@@ -62,7 +69,8 @@ BmwX5 {
   translation 2.31413 0.259432 0.39
   rotation 0 0 1 -5.307179586466759e-06
   name "vehicle(1)"
-  controller "autonomous_vehicle"
+  controller "my_controller"
+  frontSpotLights TRUE
   sensorsSlotFront [
     SickLms291 {
       translation 0.06 0 0
@@ -91,7 +99,8 @@ BmwX5 {
         }
       ]
       fieldOfView 1
-      width 128
+      width 640
+      height 640
     }
   ]
   sensorsSlotCenter [
@@ -112,8 +121,9 @@ CurvedRoadSegment {
   width 18
   lines [
     RoadLine {
-      color 1 1 0
+      color 0.796078 0.733333 0.372549
       type "continuous"
+      width 0.8
     }
   ]
   rightBarrier TRUE
@@ -127,8 +137,9 @@ StraightRoadSegment {
   width 18
   lines [
     RoadLine {
-      color 1 1 0
+      color 0.796078 0.733333 0.372549
       type "continuous"
+      width 0.8
     }
   ]
   rightBarrier TRUE
@@ -142,8 +153,9 @@ CurvedRoadSegment {
   width 18
   lines [
     RoadLine {
-      color 1 1 0
+      color 0.796078 0.733333 0.372549
       type "continuous"
+      width 0.8
     }
   ]
   rightBarrier TRUE
@@ -157,8 +169,9 @@ StraightRoadSegment {
   width 18
   lines [
     RoadLine {
-      color 1 1 0
+      color 0.796078 0.733333 0.372549
       type "continuous"
+      width 0.8
     }
   ]
   rightBarrier TRUE
@@ -172,8 +185,9 @@ CurvedRoadSegment {
   width 18
   lines [
     RoadLine {
-      color 1 1 0
+      color 0.796078 0.733333 0.372549
       type "continuous"
+      width 0.8
     }
   ]
   rightBarrier TRUE
@@ -187,8 +201,9 @@ StraightRoadSegment {
   width 18
   lines [
     RoadLine {
-      color 1 1 0
+      color 0.796078 0.733333 0.372549
       type "continuous"
+      width 0.8
     }
   ]
   rightBarrier TRUE

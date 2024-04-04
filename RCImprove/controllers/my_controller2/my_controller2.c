@@ -361,14 +361,14 @@ int main(int argc, char **argv) {
 
   // start engine
   if (has_camera)
-    set_speed(50.0);  // km/h
+    set_speed(30.0);  // km/h
   wbu_driver_set_hazard_flashers(true);
   wbu_driver_set_dipped_beams(true);
   wbu_driver_set_antifog_lights(true);
   wbu_driver_set_wiper_mode(SLOW);
 
   print_help();
-
+  
   // allow to switch to manual control
   wb_keyboard_enable(TIME_STEP);
 
@@ -401,6 +401,7 @@ int main(int argc, char **argv) {
 
         // avoid obstacles and follow yellow line
         if (enable_collision_avoidance && obstacle_angle != UNKNOWN) {
+          printf("here2\n");
           // an obstacle has been detected
           wbu_driver_set_brake_intensity(0.0);
           // compute the steering angle required to avoid the obstacle
@@ -422,10 +423,12 @@ int main(int argc, char **argv) {
           // apply the computed required angle
           set_steering_angle(steer);
         } else if (yellow_line_angle != UNKNOWN) {
+          printf("here\n");
           // no obstacle has been detected, simply follow the line
           wbu_driver_set_brake_intensity(0.0);
           set_steering_angle(applyPID(yellow_line_angle));
         } else {
+          printf("here3\n");
           // no obstacle has been detected but we lost the line => we brake and hope to find the line again
           wbu_driver_set_brake_intensity(0.4);
           PID_need_reset = true;
@@ -438,7 +441,6 @@ int main(int argc, char **argv) {
       if (enable_display)
         update_display();
     }
-
     ++i;
   }
 
