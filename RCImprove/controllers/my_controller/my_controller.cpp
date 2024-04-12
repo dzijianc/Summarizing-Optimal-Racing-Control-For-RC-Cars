@@ -1,16 +1,19 @@
 // You may need to add webots include files such as
 // <webots/DistanceSensor.hpp>, <webots/Motor.hpp>, etc.
 // and/or to add some other includes
-#include <webots/vehicle/driver.h>
-#include <webots/camera.h>
-#include <webots/device.h>
-#include <webots/display.h>
-#include <webots/gps.h>
-#include <webots/keyboard.h>
-#include <webots/lidar.h>
-#include <webots/robot.h>
+#include <webots/vehicle/driver.hpp>
+#include <webots/camera.hpp>
+#include <webots/device.hpp>
+#include <webots/display.hpp>
+#include <webots/gps.hpp>
+#include <webots/keyboard.hpp>
+#include <webots/lidar.hpp>
+#include <webots/robot.hpp>
+#include "Eigen/Eigen"
 
 #include <math.h>
+#include <stdio.h>
+#include <string.h>
 
 // All the webots classes are defined in the "webots" namespace
 using namespace webots;
@@ -35,25 +38,25 @@ bool has_gps = false;
 bool has_camera = false;
 
 // camera
-WbDeviceTag camera;
+Camera *camera;
 int camera_width = -1;
 int camera_height = -1;
 double camera_fov = -1.0;
 
 // SICK laser
-WbDeviceTag sick;
+Lidar *sick;
 int sick_width = -1;
 double sick_range = -1.0;
 double sick_fov = -1.0;
 
 // speedometer
-WbDeviceTag display;
+Display *display;
 int display_width = 0;
 int display_height = 0;
-WbImageRef speedometer_image = NULL;
+ImageRef *speedometer_image;
 
 // GPS
-WbDeviceTag gps;
+GPS *gps;
 double gps_coords[3] = {0.0, 0.0, 0.0};
 double gps_speed = 0.0;
 
@@ -62,6 +65,28 @@ double speed = 0.0;
 double steering_angle = 0.0;
 int manual_steering = 0;
 bool PID_need_reset = false;
+
+void setupVariables() {
+  /*
+  Bicycle model:
+  beta = steering angle
+  r
+  e
+  delta_psi
+
+
+
+  a = 1.5
+  b = 1.5
+  k_p - .02
+  I_z = 4346 (from Inertia matrix)
+  x_LA = camera.far
+  C_R = 160 
+  C_F = 180
+  U_x = gps.velocity[0]
+  m = 2000kg
+  */
+}
 
 void set_speed(Driver *driver, double kmh) {
   // max speed
@@ -150,57 +175,32 @@ double filter_angle(double new_value) {
   }
 }
 
-// returns approximate angle of obstacle
-// or UNKNOWN if no obstacle was detected
-double process_sick_data(const float *sick_data, double *obstacle_dist) {
-  const int HALF_AREA = 20;  // check 20 degrees wide middle area
-  int sumx = 0;
-  int collision_count = 0;
-  int x;
-  *obstacle_dist = 0.0;
-  for (x = sick_width / 2 - HALF_AREA; x < sick_width / 2 + HALF_AREA; x++) {
-    float range = sick_data[x];
-    if (range < 20.0) {
-      sumx += x;
-      collision_count++;
-      *obstacle_dist += range;
-    }
-  }
-
-  // if no obstacle was detected...
-  if (collision_count == 0)
-    return UNKNOWN;
-
-  *obstacle_dist = *obstacle_dist / collision_count;
-  return ((double)sumx / collision_count / sick_width - 0.5) * sick_fov;
-}
-
 void update_display(Driver *driver) {
   const double NEEDLE_LENGTH = 50.0;
 
   // display background
-  wb_display_image_paste(display, speedometer_image, 0, 0, false);
+  display->imagePaste(speedometer_image, 0, 0, false);
 
   // draw speedometer needle
-  double current_speed = wbu_driver_get_current_speed();
+  double current_speed = driver->getCurrentSpeed();
   if (isnan(current_speed))
     current_speed = 0.0;
   double alpha = current_speed / 260.0 * 3.72 - 0.27;
   int x = -NEEDLE_LENGTH * cos(alpha);
   int y = -NEEDLE_LENGTH * sin(alpha);
-  wb_display_draw_line(display, 100, 95, 100 + x, 95 + y);
+  display->drawLine(100, 95, 100 + x, 95 + y);
 
   // draw text
   char txt[64];
   sprintf(txt, "GPS coords: %.1f %.1f", gps_coords[X], gps_coords[Z]);
-  wb_display_draw_text(display, txt, 10, 130);
+  display->drawText(txt, 10, 130);
   sprintf(txt, "GPS speed:  %.1f", gps_speed);
-  wb_display_draw_text(display, txt, 10, 140);
+  display->drawText(txt, 10, 140);
 }
 
 void compute_gps_speed() {
-  const double *coords = wb_gps_get_values(gps);
-  const double speed_ms = wb_gps_get_speed(gps);
+  const double *coords = gps->getValues();
+  const double speed_ms = gps->getSpeed();
   // store into global variables
   gps_speed = speed_ms * 3.6;  // convert from m/s to km/h
   memcpy(gps_coords, coords, sizeof(gps_coords));
@@ -229,6 +229,8 @@ double applyPID(double yellow_line_angle) {
   oldValue = yellow_line_angle;
   return KP * yellow_line_angle + KI * integral + KD * diff;
 }
+
+
 // This is the main program of your controller.
 // It creates an instance of your Robot instance, launches its
 // function(s) and destroys it at the end of the execution.
@@ -240,31 +242,82 @@ int main(int argc, char **argv) {
   // create the Robot instance.
   Driver *driver = new Driver();
 
-  // get the time step of the current world.
-  // int timeStep = (int)driver->getBasicTimeStep();
+  // check if there is a SICK and a display
+  int j = 0;
+  for (j = 0; j < driver->getNumberOfDevices(); ++j) {
+    Device *device = driver->getDeviceByIndex(j);
+    const std::string name = device->getName();
+    if (name.compare("display") == 0)
+      enable_display = true;
+    else if (name.compare("gps") == 0)
+      has_gps = true;
+    else if (name.compare("camera") == 0)
+      has_camera = true;
+  }
 
-  // You should insert a getDevice-like function in order to get the
-  // instance of a device of the robot. Something like:
-  //  Motor *motor = robot->getMotor("motorname");
-  //  DistanceSensor *ds = robot->getDistanceSensor("dsname");
-  //  ds->enable(timeStep);
+  // camera device
+  if (has_camera) {
+    camera = (Camera *)driver->getDevice("camera");
+    camera->enable(TIME_STEP);
+    camera_width = camera->getWidth();
+    camera_height = camera->getHeight();
+    camera_fov = camera->getFov();
+  }
+
+  // initialize gps
+  if (has_gps) {
+    gps = (GPS *) driver->getDevice("gps");
+    gps->enable(TIME_STEP);
+  }
+
+  // initialize display (speedometer)
+  if (enable_display) {
+    display = (Display *)driver->getDevice("display");
+    speedometer_image = display->imageLoad("speedometer.png");
+  }
+
+  // start engine
+  if (has_camera)
+    set_speed(driver, 30.0);  // km/h
 
   // Main loop:
   // - perform simulation steps until Webots is stopping the controller
   while (driver->step() != -1) {
-    set_speed(driver, 50.0);
-    // Read the sensors:
-    // Enter here functions to read sensor data, like:
-    //  double val = ds->getValue();
+    static int i = 0;
 
-    // Process sensor data here.
+    // updates sensors only every TIME_STEP milliseconds
+    if (i % (int)(TIME_STEP / driver->getBasicTimeStep()) == 0) {
+      // read sensors
+      const unsigned char *camera_image = NULL;
+      if (has_camera)
+        camera_image = camera->getImage();
 
-    // Enter here functions to send actuator commands, like:
-    //  motor->setPosition(10.0);
+      if (has_camera) {
+        double yellow_line_angle = filter_angle(process_camera_image(camera_image));
+
+        // avoid obstacles and follow yellow line
+        if (yellow_line_angle != UNKNOWN) {
+          // no obstacle has been detected, simply follow the line
+          driver->setBrakeIntensity(0.0);
+          set_steering_angle(driver, applyPID(yellow_line_angle));
+        } else {
+          // no obstacle has been detected but we lost the line => we brake and hope to find the line again
+          driver->setBrakeIntensity(0.4);
+          PID_need_reset = true;
+        }
+      }
+
+      // update stuff
+      if (has_gps)
+        compute_gps_speed();
+      if (enable_display)
+        update_display(driver);
+    }
+    ++i;
   };
 
   // Enter here exit cleanup code.
 
-  // delete driver;
+  delete driver;
   return 0;
 }
