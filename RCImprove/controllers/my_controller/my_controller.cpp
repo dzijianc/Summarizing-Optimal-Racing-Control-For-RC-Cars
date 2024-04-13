@@ -24,8 +24,8 @@ enum { X, Y, Z };
 #define UNKNOWN 99999.99
 
 // Line following PID
-#define KP 0.25
-#define KI 0.006
+#define KP 1
+#define KI 0.01
 #define KD 2
 
 // Size of the yellow line angle filter
@@ -278,7 +278,7 @@ int main(int argc, char **argv) {
 
   // start engine
   if (has_camera)
-    set_speed(driver, 30.0);  // km/h
+    set_speed(driver, 50.0);  // km/h
 
   // Main loop:
   // - perform simulation steps until Webots is stopping the controller
